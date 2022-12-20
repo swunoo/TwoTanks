@@ -2,6 +2,7 @@ package fun.swunoo;
 
 public enum Sizes {
 
+    // Layout
     WINDOW_WIDTH(600),
     WINDOW_HEIGHT(550),
     HEADER_HEIGHT(80),

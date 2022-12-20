@@ -1,9 +1,11 @@
 package fun.swunoo;
 
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -31,6 +33,7 @@ public class LayoutBuilder {
 
         Label header = new Label("90 TANKS");
         header.setPrefHeight(HEADER_HEIGHT.getSize());
+        header.setMaxHeight(HEADER_HEIGHT.getSize());
         header.setPrefWidth(WINDOW_WIDTH.getSize());
         header.setAlignment(Pos.CENTER_RIGHT);
         header.setPadding(new Insets(HEADER_PADDING.getSize()));
@@ -47,17 +50,19 @@ public class LayoutBuilder {
         private static VBox box = null;
 
         private static String boxStyle = 
-            "-fx-background-color: #FBFF4E;";
+            "-fx-background-color: #FBFF4E; -fx-border-width: 0 3px 0 0; -fx-border-color: #000;";
 
         private static String btnStyle = 
             "-fx-border-color: black;"
             + "-fx-border-width: 3px;"
+            + "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,1), 0, 0, 5, 5);"
             + "-fx-padding: 5px;"
             +"-fx-border-insets: 10px;"
             +"-fx-background-insets: 10px;";
 
         private static String startBtnStyle = "-fx-background-color: #fff; -fx-text-fill: #000;";
         private static String abtBtnStyle = "-fx-background-color: #473ADC; -fx-text-fill: #fff;";
+        private static String hoverBtnStyle = "-fx-background-color: #58F08C; -fx-text-fill: #000;";
 
         private static String statStyle =
             "-fx-background-color: #000;"; 
@@ -81,7 +86,7 @@ public class LayoutBuilder {
 
             VBox statBox = new VBox(
                 buildStats("SCORE", score, scoreStatStyle),
-                buildStats("LIVE", live, liveStatStyle));
+                buildStats("LIVES", live, liveStatStyle));
 
             statBox.setPrefHeight(1000);
             statBox.setAlignment(Pos.CENTER);
@@ -104,14 +109,26 @@ public class LayoutBuilder {
             box.setSpacing(GAP.getSize());
             
             box.setStyle(boxStyle);
-            
         }
 
-        private Button buildButtons(String text, String extraStyle){
-            Button btn = new Button(text);
+        private Label buildButtons(String text, String extraStyle){
+            
+            Label btn = new Label(text);
             btn.setStyle(btnStyle + extraStyle);
             btn.setPrefWidth(1000);
             btn.setFont(Props._font());
+            btn.setAlignment(Pos.CENTER);
+
+            btn.addEventHandler(
+                MouseEvent.MOUSE_ENTERED, 
+                e -> btn.setStyle(btnStyle + hoverBtnStyle));
+
+            btn.addEventHandler(
+                MouseEvent.MOUSE_EXITED, 
+                e -> btn.setStyle(btnStyle + extraStyle));
+
+            btn.setOnMouseClicked(e -> GameArea.btnClicked(e));
+
             return btn;
         }
 
@@ -143,7 +160,7 @@ public class LayoutBuilder {
                     Integer.parseInt(score.getText()) + value
                 );
                 score.setText(newText);
-            } else if (statName == "live"){
+            } else if (statName == "lives"){
                 String newText = Integer.toString(
                     Integer.parseInt(live.getText()) + value
                 );

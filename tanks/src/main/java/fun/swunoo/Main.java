@@ -14,7 +14,16 @@ public class Main extends Application{
 
         Pane root = LayoutBuilder.getRoot();
 
+        root.setFocusTraversable(false);
+
         Scene scene = new Scene(root, Sizes.WINDOW_WIDTH.getSize(), Sizes.WINDOW_HEIGHT.getSize());
+
+        scene.setOnKeyPressed(e ->{
+            GameArea.keyPressed(e.getCode());
+        });
+
+
+
         stage.setScene(scene);
         stage.setTitle("90 TANKS by SwunOo");
         stage.setResizable(false);
