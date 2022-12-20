@@ -1,4 +1,4 @@
-package fun.swunoo;
+package fun.swunoo.Logic;
 
 import javafx.event.ActionEvent;
 import javafx.scene.canvas.Canvas;
@@ -10,9 +10,20 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
-import static fun.swunoo.Sizes.*;
-import static fun.swunoo.GameArea.Measurements.*;
+import static fun.swunoo.Data.Sizes.*;
+import static fun.swunoo.Data.GameMeasurements.*;
 
+import fun.swunoo.Data.Props;
+import fun.swunoo.Data.Sizes;
+
+/**
+ * Manages game logic.
+ * ALso builds the canvas.
+ * Uses singleton patten:
+ *      -   Canvas object 'canvas' for presentation and GameArea object 'gameArea' for gameplay are both signleton instances.
+ *      -   Both objects can be requested with their own singleton methods.
+ *      -   The singleton methods return the requested object if already built, and builds a new one using a single constructor.
+ * */
 public class GameArea {
 
     private static Canvas canvas = null;
@@ -20,7 +31,7 @@ public class GameArea {
 
     private GraphicsContext g;
 
-    private XYPosition p1TankPos;
+    private XYPosition p1TankPos;   // XYPosition: a wrapper class for x and y coordinate points.
 
     private static boolean inGame = false;
 
@@ -36,20 +47,25 @@ public class GameArea {
 
     private GameArea(){
 
+        // INITIALIZING: Canvas (canvas)
         int canvasWidth = WINDOW_WIDTH.getSize() - SIDE_WIDTH.getSize();
         int canvasHeight = WINDOW_HEIGHT.getSize() - HEADER_HEIGHT.getSize() - HEADER_PADDING.getSize()/2;
-
         canvas = new Canvas(canvasWidth, canvasHeight);
 
-        p1TankPos = new XYPosition(canvasWidth/2, canvasHeight-100); //TODO: this can be a props.
+        // INITIALIZING: XYPosition (p1TankPos)
+        p1TankPos = new XYPosition(canvasWidth/2, canvasHeight- STARTING_BOTTOM.getSize());
 
+        // INITIALIZING: GraphicsContext (g)
         g = canvas.getGraphicsContext2D();
         g.setLineWidth(STROKE_WIDTH);
 
+        // Drawing the canvas.
         draw();
-
     }
 
+    /*
+     * Event handler for START and ABOUT buttons.
+     */
     public static void btnClicked(MouseEvent evt){
         Label btn = (Label) evt.getSource();
         
@@ -62,6 +78,10 @@ public class GameArea {
         }
     }
 
+    /*
+     * Event handler for key strokes.
+     * Moves the tank LEFT, RIGHT, UP, DOWN.
+     */
     public static void keyPressed(KeyCode code){
 
         System.out.println("pressed: " + code);
@@ -90,10 +110,16 @@ public class GameArea {
         //     return;
         // }
 
+        // redrawing canvas.
         gameArea.draw();
 
     }
 
+    /*
+     * Refreshes the canvas by:
+     *      -   drawing the background.
+     *      -   drawing tanks.
+     */
     public void draw(){
         g.setFill(Color.rgb(88, 240, 140));
         g.fillRect(0, 0, 1000, 1000);
@@ -101,8 +127,13 @@ public class GameArea {
         drawTank(p1TankPos, Color.WHITE, Color.BLACK);
     }
 
+    /**
+     * Draws a tank based on:
+     *  -   pos:          X and Y positions of the CENTER POINT of the tank.
+     *  -   fillColor:    Paint object to fill the body and wheels.
+     *  -   strokeColor:  Paint object to outline the body and wheels, and to fill the turret and canon.
+     */
     public void drawTank(XYPosition pos, Paint fillColor, Paint strokeColor){
-
 
         // Sets colors for outline and fill.
         g.setStroke(strokeColor);
@@ -148,19 +179,27 @@ public class GameArea {
             CANON_BREADTH,
             CANON_LENGTH);
         
-        //
     }
 
+    /*
+     * Helper method to combine strokeRect and fillRect.
+     */
     private void strokeAndFillRect(double x, double y, double l, double b){
         g.strokeRect(x, y, l, b);
         g.fillRect(x, y, l, b);
     }
 
+     /*
+     * Helper method to combine strokeRoundRect and fillRoundRect.
+     */
     private void strokeAndFillRoundRect(double x, double y, double l, double b, double r1, double r2){
         g.strokeRoundRect(x, y, l, b, r1, r2);
         g.fillRoundRect(x, y, l, b, r1, r2);
     }
 
+    /*
+     * Wrapper for x and y positions.
+     */
     class XYPosition{
         double x;
         double y;
@@ -168,23 +207,6 @@ public class GameArea {
             this.x = x;
             this.y = y;
         }
-    }
-
-    static class Measurements{
-    
-        // Tanks
-        static double TANK_SIDE = 30;
-        static double WHEEL_LENGTH = 50;
-        static double WHEEL_BREADTH = 10;
-        static double TURRET_RADIUS = 5;
-        static double CANON_BREADTH = 3;
-        static double CANON_LENGTH = 40;
-        static double SHELL_SIDE = 5;
-        
-        // Others
-        static double STROKE_WIDTH = 3;
-        static double SPEED = 3;
-    
     }
 
 }
