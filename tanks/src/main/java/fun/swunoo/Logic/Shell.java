@@ -1,12 +1,11 @@
 package fun.swunoo.Logic;
 
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.List;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Paint;
+
+import static fun.swunoo.Logic.Direction.*;
 
 /*
  * Bomb shell that is fired from the canon of a tank.
@@ -35,6 +34,12 @@ public class Shell {
     // graphics context to draw with
     private GraphicsContext g;
 
+    // possible targets
+    private List<Tank> enemyTanks;
+
+    // shooter of this shell
+    private Tank shooterTank;
+
     // if active (moving, damaging) or not.
     private boolean isActive = true;
 
@@ -44,7 +49,8 @@ public class Shell {
     public Shell(
         double x, double y,
         double boundary, double size, double speed,
-        Paint fill, Direction direction, GraphicsContext g
+        Paint fill, Direction direction, GraphicsContext g,
+        List<Tank> enemyTanks, Tank shooterTank
     ){
         // initializes variables
         this.x = x;
@@ -55,6 +61,8 @@ public class Shell {
         this.fill = fill;
         this.direction = direction;
         this.g = g;
+        this.enemyTanks = enemyTanks;
+        this.shooterTank = shooterTank;
     }
 
     /*
@@ -92,6 +100,19 @@ public class Shell {
 
         // draws if shell is still active.
         if (isActive) show();
+
+        enemyTanks.forEach(
+            tank -> {
+                if(
+                    x > tank.accessBounds(LEFT) && x < tank.accessBounds(RIGHT)
+                    &&
+                    y > tank.accessBounds(UP) && y < tank.accessBounds(DOWN)){
+                        System.out.println("-------TANK HIT-------");
+                        tank.getHit(this);
+                        this.isActive = false;
+                }
+            }
+        );
     }    
 
     /*
@@ -99,6 +120,13 @@ public class Shell {
      */
     public boolean isActive(){
         return isActive;
+    }
+
+    /*
+     * Accessor for Shooter tank.
+     */
+    public Tank getShooter(){
+        return shooterTank;
     }
     
 

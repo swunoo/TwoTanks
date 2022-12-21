@@ -86,7 +86,7 @@ public class LayoutBuilder {
      * Important: Elements that are called "buttons" are actually LABEL elements. "button" is just a name like "stats".
      */
 
-    static class Sidenav {
+    public static class Sidenav {
 
         // The singleton VBox, which serves as sidenav bar in the UI.
         private static VBox box = null;
@@ -221,19 +221,24 @@ public class LayoutBuilder {
             return stats;
         }
 
-        private static void addToStats(String statName, int value){
-            if(statName == "score"){
+        public static void addToStats(Stat stat, int value){
+            if(stat.equals(Stat.SCORE)){
                 String newText = Integer.toString(
                     Integer.parseInt(score.getText()) + value
                 );
                 score.setText(newText);
-            } else if (statName == "lives"){
+            } else if (stat.equals(Stat.LIVES)){
                 String newText = Integer.toString(
                     Integer.parseInt(live.getText()) + value
                 );
                 live.setText(newText);
             }
 
+        }
+
+        public enum Stat {
+            SCORE,
+            LIVES;
         }
 
     }

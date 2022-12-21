@@ -35,6 +35,7 @@ public class GameArea {
     private AnimationTimer animationTimer;
 
     private Tank p1Tank;
+    private Tank p2Tank;
 
     private static boolean inGame = false;
 
@@ -60,6 +61,8 @@ public class GameArea {
 
         // INITIALIZING: Tank (p1Tank)
         p1Tank = new Tank(
+            "Player 1",
+            true,
             canvasWidth/2,
             canvasHeight - STARTING_BOTTOM.getSize(),
             canvasWidth,
@@ -69,6 +72,23 @@ public class GameArea {
             new NormalTank(),
             Direction.UP,
             g);
+
+        // INITIALIZING: Tank (p2Tank)
+        p2Tank = new Tank(
+            "Player 2",
+            false,
+            canvasWidth/2,
+            STARTING_BOTTOM.getSize(),
+            canvasWidth,
+            canvasHeight,
+            Color.BLUE,
+            Color.BLACK,
+            new NormalTank(),
+            Direction.DOWN,
+            g);
+
+        // INITIALIZING: Setting up Tanks
+        p1Tank.addEnemyTank(p2Tank);
         
         animationTimer = new AnimationTimer( ) {
             long previousFrameTime; // nanoseconds
@@ -146,6 +166,7 @@ public class GameArea {
 
         // tanks
         p1Tank.show();
+        p2Tank.show();
 
         // shells
         p1Tank.updateShells();

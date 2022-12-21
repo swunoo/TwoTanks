@@ -5,6 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import fun.swunoo.Data.TankMeasurements;
+import fun.swunoo.UI.LayoutBuilder;
+import fun.swunoo.UI.LayoutBuilder.Sidenav;
+import fun.swunoo.UI.LayoutBuilder.Sidenav.Stat;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -43,22 +46,34 @@ public class Tank {
     // graphics context to draw with
     private GraphicsContext g;
 
+    // enemies that are targets for shells
+    private List<Tank> enemyTanks;
+
     // shells fired from the tank
     private List<Shell> shells;
     // shells to remove
     private List<Shell> shellsToRemove;
 
+    // playername
+    private String playerName;
+    // playername
+    private boolean isPlayerTank;
+
     /*
      * All variables must be initialized.
      */
     Tank (
+        String playerName,
+        boolean isPlayerTank,
         double x, double y,
         double boundary_x, double boundary_y,
         Paint fill, Paint stroke,
         TankMeasurements T,
         Direction direction,
         GraphicsContext g
-    ) {
+        ) {
+        this.playerName = playerName;
+        this.isPlayerTank = isPlayerTank;
         this.x = x;
         this.y = y;
         this.boundary_x = boundary_x;
@@ -71,6 +86,41 @@ public class Tank {
         this.HALF_OF_WHOLE_BREADTH = T.TANK_SIDE/2 + T.WHEEL_BREADTH/2;
         this.HALF_OF_WHOLE_LENGTH = Math.max(T.CANON_LENGTH, T.WHEEL_LENGTH/2);
         this.shells = new ArrayList<>();
+        this.enemyTanks = new ArrayList<>();
+    }
+
+    public void addEnemyTank(Tank enemy){
+        enemyTanks.add(enemy);
+    }
+
+    public void enemyHit(Tank enemy){
+        enemyTanks.remove(enemy);
+        if(isPlayerTank)
+            Sidenav.addToStats(Stat.SCORE, 1);
+    }
+
+    public List<Tank> getEnemyTanks(){
+        return enemyTanks;
+    }
+
+    /*
+     * Accessors for positions of tanks' bounds.
+     */
+    public double accessBounds(Direction direction){
+        switch(direction){
+            case LEFT: return x - T.TANK_SIDE/2;
+            case RIGHT: return x + T.TANK_SIDE/2;
+            case UP: return y - T.TANK_SIDE/2;
+            case DOWN: return y + T.TANK_SIDE/2;
+            default: return 0.0;
+        }
+    }
+
+    /*
+     * Accessor for playerName.
+     */
+    public String getName(){
+        return playerName;
     }
 
     /*
@@ -142,8 +192,18 @@ public class Tank {
             T.SHELL_SPEED,
             Color.BLACK,
             direction,
-            g)
+            g,
+            enemyTanks, this)
         );
+    }
+
+    /*
+     * Receiving damage.
+     */
+    public void getHit(Shell shell){
+        shell.getShooter().enemyHit(this);
+        // if(isPlayerTank)
+        //     Sidenav.addToStats(Stat.LIVES, -1);
     }
 
     /*
