@@ -1,4 +1,4 @@
-package fun.swunoo;
+package fun.swunoo.References;
 
 import javafx.application.Application;
 import javafx.stage.Stage;

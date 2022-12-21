@@ -1,5 +1,6 @@
 package fun.swunoo.Logic;
 
+import javafx.animation.AnimationTimer;
 import javafx.event.ActionEvent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -11,7 +12,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
 import static fun.swunoo.Data.Sizes.*;
-import static fun.swunoo.Data.GameMeasurements.*;
+
+import fun.swunoo.Data.NormalTank;
 
 import fun.swunoo.Data.Props;
 import fun.swunoo.Data.Sizes;
@@ -30,8 +32,9 @@ public class GameArea {
     private static GameArea gameArea = null;
 
     private GraphicsContext g;
+    private AnimationTimer animationTimer;
 
-    private XYPosition p1TankPos;   // XYPosition: a wrapper class for x and y coordinate points.
+    private Tank p1Tank;
 
     private static boolean inGame = false;
 
@@ -52,12 +55,30 @@ public class GameArea {
         int canvasHeight = WINDOW_HEIGHT.getSize() - HEADER_HEIGHT.getSize() - HEADER_PADDING.getSize()/2;
         canvas = new Canvas(canvasWidth, canvasHeight);
 
-        // INITIALIZING: XYPosition (p1TankPos)
-        p1TankPos = new XYPosition(canvasWidth/2, canvasHeight- STARTING_BOTTOM.getSize());
-
         // INITIALIZING: GraphicsContext (g)
         g = canvas.getGraphicsContext2D();
-        g.setLineWidth(STROKE_WIDTH);
+
+        // INITIALIZING: Tank (p1Tank)
+        p1Tank = new Tank(
+            canvasWidth/2,
+            canvasHeight - STARTING_BOTTOM.getSize(),
+            canvasWidth,
+            canvasHeight,
+            Color.WHITE,
+            Color.BLACK,
+            new NormalTank(),
+            g);
+        
+        animationTimer = new AnimationTimer( ) {
+            long previousFrameTime; // nanoseconds
+            public void handle(long time) {
+                if (time - previousFrameTime > 0.99e9/60) {
+                    // Only renders 60 times per second.
+                    draw();
+                    previousFrameTime = time;
+                }
+            }
+        };
 
         // Drawing the canvas.
         draw();
@@ -72,6 +93,12 @@ public class GameArea {
         if(btn.getText() == "START"){
             btn.setText("PAUSE");
             inGame = true;
+            gameArea.animationTimer.start();
+
+        } else if (btn.getText() == "PAUSE"){
+            btn.setText("START");
+            inGame = false;
+            gameArea.animationTimer.stop();
 
         } else if (btn.getText() == "ABOUT"){
             System.out.println("TODO: Add About Modal or something.");
@@ -81,34 +108,23 @@ public class GameArea {
     /*
      * Event handler for key strokes.
      * Moves the tank LEFT, RIGHT, UP, DOWN.
+     * Shoots the tanks, rendering shell movement with animationTimer.
      */
     public static void keyPressed(KeyCode code){
 
         System.out.println("pressed: " + code);
 
+        if(!inGame) return;
+
+        // Moving the tank with arrow keys and shooting with spacebar.
         switch(code){
-            case LEFT: gameArea.p1TankPos.x -= SPEED; break;
-            case RIGHT: gameArea.p1TankPos.x += SPEED; break;
-            case UP: gameArea.p1TankPos.y -= SPEED; break;
-            case DOWN: gameArea.p1TankPos.y += SPEED; break;
+            case LEFT: gameArea.p1Tank.move(Direction.LEFT); break;
+            case RIGHT: gameArea.p1Tank.move(Direction.RIGHT); break;
+            case UP: gameArea.p1Tank.move(Direction.UP); break;
+            case DOWN: gameArea.p1Tank.move(Direction.DOWN); break;
+            case SPACE: gameArea.p1Tank.shoot(); break;
             default: return;
         }
-
-        // if(code == KeyCode.LEFT){
-
-        //     gameArea.p1TankPos.x -= SPEED;
-            
-        // } else if (code == KeyCode.RIGHT){
-            
-        // } else if (code == KeyCode.UP){
-
-        // } else if (code == KeyCode.DOWN){
-
-        // } else if (code == KeyCode.SPACE){
-
-        // } else {
-        //     return;
-        // }
 
         // redrawing canvas.
         gameArea.draw();
@@ -119,94 +135,18 @@ public class GameArea {
      * Refreshes the canvas by:
      *      -   drawing the background.
      *      -   drawing tanks.
+     *      -   drawing shells.
      */
     public void draw(){
+
+        // background
         g.setFill(Color.rgb(88, 240, 140));
         g.fillRect(0, 0, 1000, 1000);
 
-        drawTank(p1TankPos, Color.WHITE, Color.BLACK);
+        // tanks
+        p1Tank.show();
+
+        // shells
+        p1Tank.updateShells();
     }
-
-    /**
-     * Draws a tank based on:
-     *  -   pos:          X and Y positions of the CENTER POINT of the tank.
-     *  -   fillColor:    Paint object to fill the body and wheels.
-     *  -   strokeColor:  Paint object to outline the body and wheels, and to fill the turret and canon.
-     */
-    public void drawTank(XYPosition pos, Paint fillColor, Paint strokeColor){
-
-        // Sets colors for outline and fill.
-        g.setStroke(strokeColor);
-        g.setFill(fillColor);
-
-        // Draws wheels.
-        strokeAndFillRoundRect(
-            pos.x - TANK_SIDE/2 - WHEEL_BREADTH/2,
-            pos.y - WHEEL_LENGTH/2,
-            WHEEL_BREADTH,
-            WHEEL_LENGTH,
-            WHEEL_BREADTH,
-            WHEEL_BREADTH
-        );
-        strokeAndFillRoundRect(
-            pos.x + TANK_SIDE/2 - WHEEL_BREADTH/2,
-            pos.y - WHEEL_LENGTH/2,
-            WHEEL_BREADTH,
-            WHEEL_LENGTH,
-            WHEEL_BREADTH,
-            WHEEL_BREADTH
-        );
-
-        // Draws body of the tank.
-        strokeAndFillRect(
-            pos.x - TANK_SIDE/2,
-            pos.y - TANK_SIDE/2,
-            TANK_SIDE,
-            TANK_SIDE);
-
-        // Draws turret and canon (they use stroke color).
-        g.setFill(strokeColor);
-
-        g.fillOval(
-            pos.x - TURRET_RADIUS,
-            pos.y - TURRET_RADIUS,
-            TURRET_RADIUS*2,
-            TURRET_RADIUS*2);
-        
-        g.fillRect(
-            pos.x - CANON_BREADTH/2,
-            pos.y - CANON_LENGTH,
-            CANON_BREADTH,
-            CANON_LENGTH);
-        
-    }
-
-    /*
-     * Helper method to combine strokeRect and fillRect.
-     */
-    private void strokeAndFillRect(double x, double y, double l, double b){
-        g.strokeRect(x, y, l, b);
-        g.fillRect(x, y, l, b);
-    }
-
-     /*
-     * Helper method to combine strokeRoundRect and fillRoundRect.
-     */
-    private void strokeAndFillRoundRect(double x, double y, double l, double b, double r1, double r2){
-        g.strokeRoundRect(x, y, l, b, r1, r2);
-        g.fillRoundRect(x, y, l, b, r1, r2);
-    }
-
-    /*
-     * Wrapper for x and y positions.
-     */
-    class XYPosition{
-        double x;
-        double y;
-        XYPosition(double x, double y){
-            this.x = x;
-            this.y = y;
-        }
-    }
-
 }
