@@ -89,6 +89,8 @@ public class GameArea {
 
         // INITIALIZING: Setting up Tanks
         p1Tank.addEnemyTank(p2Tank);
+
+        p2Tank.addEnemyTank(p1Tank);
         
         animationTimer = new AnimationTimer( ) {
             long previousFrameTime; // nanoseconds
@@ -144,6 +146,7 @@ public class GameArea {
             case UP: gameArea.p1Tank.move(Direction.UP); break;
             case DOWN: gameArea.p1Tank.move(Direction.DOWN); break;
             case SPACE: gameArea.p1Tank.shoot(); break;
+            case A: gameArea.p2Tank.shoot(); break;
             default: return;
         }
 
@@ -170,5 +173,6 @@ public class GameArea {
 
         // shells
         p1Tank.updateShells();
+        p2Tank.updateShells();
     }
 }

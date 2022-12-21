@@ -94,7 +94,9 @@ public class Tank {
     }
 
     public void enemyHit(Tank enemy){
-        enemyTanks.remove(enemy);
+        synchronized(enemyTanks){
+            enemyTanks.remove(enemy);
+        }
         if(isPlayerTank)
             Sidenav.addToStats(Stat.SCORE, 1);
     }
@@ -202,8 +204,8 @@ public class Tank {
      */
     public void getHit(Shell shell){
         shell.getShooter().enemyHit(this);
-        // if(isPlayerTank)
-        //     Sidenav.addToStats(Stat.LIVES, -1);
+        if(isPlayerTank)
+            Sidenav.addToStats(Stat.LIVES, -1);
     }
 
     /*

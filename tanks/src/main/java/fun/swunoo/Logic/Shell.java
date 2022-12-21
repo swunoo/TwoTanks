@@ -1,5 +1,7 @@
 package fun.swunoo.Logic;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -99,10 +101,13 @@ public class Shell {
         }
 
         // draws if shell is still active.
-        if (isActive) show();
+        if (isActive){ 
+            show();
 
-        enemyTanks.forEach(
-            tank -> {
+            // The list is cloned to prevent ConcurrentModificationExpections.
+            List<Tank> enemyTanksClone = new ArrayList<>(enemyTanks);
+
+            for(Tank tank : enemyTanksClone){
                 if(
                     x > tank.accessBounds(LEFT) && x < tank.accessBounds(RIGHT)
                     &&
@@ -112,7 +117,9 @@ public class Shell {
                         this.isActive = false;
                 }
             }
-        );
+        }
+
+        
     }    
 
     /*
