@@ -9,6 +9,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
+import static fun.swunoo.Logic.Direction.*;
+
 /**
  * Class for the tank objects.
  */
@@ -21,6 +23,9 @@ public class Tank {
     // tanks cannot go pass boundaries
     private double boundary_x;
     private double boundary_y;
+
+    // initial direction
+    private Direction direction;
 
     // fill and stroke
     private Paint fill;
@@ -51,6 +56,7 @@ public class Tank {
         double boundary_x, double boundary_y,
         Paint fill, Paint stroke,
         TankMeasurements T,
+        Direction direction,
         GraphicsContext g
     ) {
         this.x = x;
@@ -60,6 +66,7 @@ public class Tank {
         this.fill = fill;
         this.stroke = stroke;
         this.T = T;
+        this.direction = direction;
         this.g = g;
         this.HALF_OF_WHOLE_BREADTH = T.TANK_SIDE/2 + T.WHEEL_BREADTH/2;
         this.HALF_OF_WHOLE_LENGTH = Math.max(T.CANON_LENGTH, T.WHEEL_LENGTH/2);
@@ -67,16 +74,43 @@ public class Tank {
     }
 
     /*
-     * Updates tank position and make sure it is withing boundaries.
+     * Updates tank direction.
      */
-    public void move(Direction direction){
+    public void move(Direction keyDirection){
 
-        // moves the position of the tank.
+        if (! keyDirection.equals(direction))
+            direction = keyDirection;
+        
+        moveForward();
+
+    }
+
+    /*
+     * Moves tank towards `direction` and makes sure it is within boundaries.
+     */
+    public void moveForward(){
+
+        // moves the tank and resets out-of-bound movements.
         switch(direction){
-            case LEFT: x -= T.SPEED; break;
-            case RIGHT: x += T.SPEED; break;
-            case UP: y -= T.SPEED; break;
-            case DOWN: y += T.SPEED;
+            case LEFT:
+                x -= T.SPEED;
+                if(x - HALF_OF_WHOLE_LENGTH < 0)
+                    x = HALF_OF_WHOLE_LENGTH;
+                break;
+            case RIGHT:
+                x += T.SPEED;
+                if(x + HALF_OF_WHOLE_LENGTH > boundary_x)
+                    x = boundary_x - HALF_OF_WHOLE_LENGTH;
+                break;
+            case UP:
+                y -= T.SPEED;
+                if(y - HALF_OF_WHOLE_LENGTH < 0)
+                    y = HALF_OF_WHOLE_LENGTH;
+                break;
+            case DOWN:
+                y += T.SPEED;
+                if(y + HALF_OF_WHOLE_LENGTH > boundary_y)
+                    y = boundary_y - HALF_OF_WHOLE_LENGTH;
         }
 
         // prevents out of bound movements.
@@ -91,7 +125,6 @@ public class Tank {
         } else if (y - HALF_OF_WHOLE_LENGTH < 0){
             y = HALF_OF_WHOLE_LENGTH; // sets y of bottommost side to 0.
         }
-
     }
 
     /*
@@ -101,18 +134,26 @@ public class Tank {
         shells.add(
             new Shell(
             x,
-            y - HALF_OF_WHOLE_LENGTH, 
-            0,
+            y, 
+            direction.equals(RIGHT)    // if RIGHT or DOWN, boundary is boundary_x or boundary_y. 0 otherwise.
+                ? boundary_x
+                : (direction.equals(DOWN) ? boundary_y : 0),
             T.SHELL_SIDE,
             T.SHELL_SPEED,
             Color.BLACK,
-            Direction.UP,
+            direction,
             g)
         );
     }
 
     /*
-     * Updates shells
+     * This method updates `shells`, to prevent memory leaks.
+     * IMPORTANT: make sure inactive shells are still being removed if this method is modified.
+     * 
+     * How inactive shells can be removed:
+     *  -   `shells` is a list, so it shouldn't be modified while being iterated.
+     *  -   So, another list, `shellsToRemove` is constructed to hold unactive shells.
+     *  -   These unactive shells are removed only after the iteration of `shells`.
      */
     public void updateShells(){
 
@@ -145,63 +186,113 @@ public class Tank {
         g.setFill(fill);
 
         // Draws wheels.
-        strokeAndFillRoundRect(
-            x - T.TANK_SIDE/2 - T.WHEEL_BREADTH/2,
-            y - T.WHEEL_LENGTH/2,
-            T.WHEEL_BREADTH,
-            T.WHEEL_LENGTH,
-            T.WHEEL_BREADTH,
-            T.WHEEL_BREADTH
-        );
-        strokeAndFillRoundRect(
-            x + T.TANK_SIDE/2 - T.WHEEL_BREADTH/2,
-            y - T.WHEEL_LENGTH/2,
-            T.WHEEL_BREADTH,
-            T.WHEEL_LENGTH,
-            T.WHEEL_BREADTH,
-            T.WHEEL_BREADTH
-        );
+        drawWheels();
 
-        // Draws body of the tank.
-        strokeAndFillRect(
+        // Draws body.
+        drawBody();
+
+        g.setFill(stroke); // Turret and Canon use stroke color as fill.
+
+        // Draws turret.
+        drawTurret();
+
+        // Draws canon.
+        drawCanon();
+        
+    }
+
+    /*
+     * Helper functions to draw the tank.
+     */
+    private void drawWheels(){
+
+        // POSITION: first wheel.
+        double wheel_x1 = 0;
+        double wheel_y1 = 0;
+
+        // POSITION: second wheel.
+        double wheel_x2 = 0;
+        double wheel_y2 = 0;
+
+        // X-DISTANCE: length in x position for both wheels.
+        double length_x = 0;
+
+        // Y-DISTANCE: length in y position for both wheels.
+        double length_y = 0;
+
+        // RADIUS: border radia of both wheels.
+        double border_radius = T.WHEEL_BREADTH;
+
+        // For vertical position:
+        if(direction.equals(UP) || direction.equals(DOWN)){
+
+            wheel_x1 = x - T.TANK_SIDE/2 - T.WHEEL_BREADTH/2;
+            wheel_y1 = y - T.WHEEL_LENGTH/2;
+            wheel_x2 = x + T.TANK_SIDE/2 - T.WHEEL_BREADTH/2;
+            wheel_y2 = wheel_y1;
+            length_x = T.WHEEL_BREADTH;
+            length_y = T.WHEEL_LENGTH;
+
+        // For horizontal position:
+        } else {
+            wheel_x1 = x - T.WHEEL_LENGTH/2;
+            wheel_y1 = y - T.TANK_SIDE/2 - T.WHEEL_BREADTH/2;
+            wheel_x2 = wheel_x1;
+            wheel_y2 = y + T.TANK_SIDE/2 - T.WHEEL_BREADTH/2;
+            length_x = T.WHEEL_LENGTH;
+            length_y = T.WHEEL_BREADTH;
+        }
+
+        // DRAWING: wheel 1.
+        g.strokeRoundRect(wheel_x1, wheel_y1, length_x, length_y, border_radius, border_radius);
+        g.fillRoundRect(wheel_x1, wheel_y1, length_x, length_y, border_radius, border_radius);
+
+        // DRAWING: wheel 2.
+        g.strokeRoundRect(wheel_x2, wheel_y2, length_x, length_y, border_radius, border_radius);
+        g.fillRoundRect(wheel_x2, wheel_y2, length_x, length_y, border_radius, border_radius);
+    }
+
+    private void drawBody(){
+        g.strokeRect(
             x - T.TANK_SIDE/2,
             y - T.TANK_SIDE/2,
             T.TANK_SIDE,
-            T.TANK_SIDE);
-
-        // Draws turret and canon (they use stroke color).
-        g.setFill(stroke);
-
+            T.TANK_SIDE
+        );
+        g.fillRect(
+            x - T.TANK_SIDE/2,
+            y - T.TANK_SIDE/2,
+            T.TANK_SIDE,
+            T.TANK_SIDE
+        );
+        
+    }
+    private void drawTurret(){
         g.fillOval(
             x - T.TURRET_RADIUS,
             y - T.TURRET_RADIUS,
             T.TURRET_RADIUS*2,
             T.TURRET_RADIUS*2);
-        
-        g.fillRect(
-            x - T.CANON_BREADTH/2,
-            y - T.CANON_LENGTH,
-            T.CANON_BREADTH,
-            T.CANON_LENGTH);
-        
     }
+    private void drawCanon(){
 
-    /*
-     * Helper method to combine strokeRect and fillRect.
-     */
-    private void strokeAndFillRect(double x, double y, double l, double b){
-        g.strokeRect(x, y, l, b);
-        g.fillRect(x, y, l, b);
+        // POSITION and DISTANCE in X and Y directions.
+        double x_pos, y_pos, x_len, y_len;
+
+        if(direction.equals(UP) || direction.equals(DOWN)){
+            x_pos = x - T.CANON_BREADTH/2;
+            y_pos = direction.equals(UP) ? y - T.CANON_LENGTH : y;
+            x_len = T.CANON_BREADTH;
+            y_len = T.CANON_LENGTH;
+        } else {
+            x_pos = direction.equals(LEFT) ? x - T.CANON_LENGTH : x;
+            y_pos = y - T.CANON_BREADTH/2;
+            x_len = T.CANON_LENGTH;
+            y_len = T.CANON_BREADTH;
+        }
+
+        g.fillRect(x_pos, y_pos, x_len, y_len);
     }
-
-     /*
-     * Helper method to combine strokeRoundRect and fillRoundRect.
-     */
-    private void strokeAndFillRoundRect(double x, double y, double l, double b, double r1, double r2){
-        g.strokeRoundRect(x, y, l, b, r1, r2);
-        g.fillRoundRect(x, y, l, b, r1, r2);
-    }
-
 }
 
 /*

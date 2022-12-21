@@ -67,6 +67,7 @@ public class GameArea {
             Color.WHITE,
             Color.BLACK,
             new NormalTank(),
+            Direction.UP,
             g);
         
         animationTimer = new AnimationTimer( ) {

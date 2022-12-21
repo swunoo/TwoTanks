@@ -70,26 +70,28 @@ public class Shell {
      */
 
     public void update(){
-        // moves the shell.
+
+        // moves the shell and deactivates if out-of-bound.
         switch(direction){
-            case LEFT: x -= speed; break;
-            case RIGHT: x += speed; break;
-            case UP: y -= speed; break;
-            case DOWN: y += speed;
+            case LEFT:
+                x -= speed;
+                if(x + HALF_SIZE < 0) isActive = false;
+                break;
+            case RIGHT:
+                x += speed;
+                if(x - HALF_SIZE > boundary) isActive = false;
+                break;
+            case UP:
+                y -= speed;
+                if(y + HALF_SIZE < 0) isActive = false;
+                break;
+            case DOWN:
+                if(y - HALF_SIZE > boundary) isActive = false;
+                y += speed;
         }
 
-        // stops timer if shell passes boundaries.
-        if(
-            (direction == Direction.LEFT && x + HALF_SIZE < boundary)
-            || (direction == Direction.RIGHT && x - HALF_SIZE > boundary)
-            || (direction == Direction.UP && y + HALF_SIZE < boundary)
-            || (direction == Direction.DOWN && y - HALF_SIZE > boundary)
-            ){
-                this.isActive = false;
-        } else {
-            // redraws the shell.
-            show();
-        }
+        // draws if shell is still active.
+        if (isActive) show();
     }    
 
     /*
