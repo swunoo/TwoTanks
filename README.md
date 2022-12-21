@@ -1,5 +1,13 @@
 # 90tanks
 
+<hr>
+
+## BRANCH_OTHER
+
+* This can be a starting point for a space-shooter style game.
+
+<hr>
+
 * Simple JavaFX application written to learn JavaFX.
 * Funtionality is pretty much the same as a game I played 15 years ago.
 
