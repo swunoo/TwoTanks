@@ -17,6 +17,7 @@ import fun.swunoo.Data.NormalTank;
 
 import fun.swunoo.Data.Props;
 import fun.swunoo.Data.Sizes;
+import fun.swunoo.UI.LayoutBuilder.Sidenav.Player;
 
 /**
  * Manages game logic.
@@ -62,7 +63,7 @@ public class GameArea {
         // INITIALIZING: Tank (p1Tank)
         p1Tank = new Tank(
             "Player 1",
-            true,
+            Player.P1,
             canvasWidth/2,
             canvasHeight - STARTING_BOTTOM.getSize(),
             canvasWidth,
@@ -76,7 +77,7 @@ public class GameArea {
         // INITIALIZING: Tank (p2Tank)
         p2Tank = new Tank(
             "Player 2",
-            false,
+            Player.P2,
             canvasWidth/2,
             STARTING_BOTTOM.getSize(),
             canvasWidth,
@@ -108,24 +109,19 @@ public class GameArea {
     }
 
     /*
-     * Event handler for START and ABOUT buttons.
+     * Cmd from btn event.
      */
-    public static void btnClicked(MouseEvent evt){
-        Label btn = (Label) evt.getSource();
-        
-        if(btn.getText() == "START"){
-            btn.setText("PAUSE");
-            inGame = true;
-            gameArea.animationTimer.start();
+    public static void setInGame(boolean state){
+        inGame = state;
+        if(state) gameArea.animationTimer.start();
+        else gameArea.animationTimer.stop();
+    }
 
-        } else if (btn.getText() == "PAUSE"){
-            btn.setText("START");
-            inGame = false;
-            gameArea.animationTimer.stop();
-
-        } else if (btn.getText() == "ABOUT"){
-            System.out.println("TODO: Add About Modal or something.");
-        }
+    /*
+     * A player winning.
+     */
+    public static void playerWins(){
+        inGame = false;
     }
 
     /*
@@ -141,13 +137,33 @@ public class GameArea {
 
         // Moving the tank with arrow keys and shooting with spacebar.
         switch(code){
-            case LEFT: gameArea.p1Tank.move(Direction.LEFT); break;
-            case RIGHT: gameArea.p1Tank.move(Direction.RIGHT); break;
-            case UP: gameArea.p1Tank.move(Direction.UP); break;
-            case DOWN: gameArea.p1Tank.move(Direction.DOWN); break;
-            case SPACE: gameArea.p1Tank.shoot(); break;
-            case A: gameArea.p2Tank.shoot(); break;
+
+            // Player 1.
+            case LEFT:
+                gameArea.p1Tank.move(Direction.LEFT); break;
+            case RIGHT:
+                gameArea.p1Tank.move(Direction.RIGHT); break;
+            case UP:
+                gameArea.p1Tank.move(Direction.UP); break;
+            case DOWN:
+                gameArea.p1Tank.move(Direction.DOWN); break;
+            case ENTER:
+                gameArea.p1Tank.shoot(); break;
+
+            // Player 2.
+            case A:
+                gameArea.p2Tank.move(Direction.LEFT); break;
+            case D:
+                gameArea.p2Tank.move(Direction.RIGHT); break;
+            case W:
+                gameArea.p2Tank.move(Direction.UP); break;
+            case S:
+                gameArea.p2Tank.move(Direction.DOWN); break;
+            case SPACE:
+                gameArea.p2Tank.shoot(); break;
+
             default: return;
+
         }
 
         // redrawing canvas.

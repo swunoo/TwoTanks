@@ -17,12 +17,12 @@ public class NormalTank extends TankMeasurements {
                CANON_BREADTH = 3;
                CANON_LENGTH = 40;
                SHELL_SIDE = 5;
-               SHELL_SPEED = 5;
+               SHELL_SPEED = 10;
                SHELL_FILL = Color.BLACK;
                
                // Others
                STROKE_WIDTH = 3;
-               SPEED = 3;
+               SPEED = 5;
           }
      
 }

@@ -7,7 +7,7 @@ import java.util.List;
 import fun.swunoo.Data.TankMeasurements;
 import fun.swunoo.UI.LayoutBuilder;
 import fun.swunoo.UI.LayoutBuilder.Sidenav;
-import fun.swunoo.UI.LayoutBuilder.Sidenav.Stat;
+import fun.swunoo.UI.LayoutBuilder.Sidenav.Player;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -57,14 +57,14 @@ public class Tank {
     // playername
     private String playerName;
     // playername
-    private boolean isPlayerTank;
+    private Player player;
 
     /*
      * All variables must be initialized.
      */
     Tank (
         String playerName,
-        boolean isPlayerTank,
+        Player player,
         double x, double y,
         double boundary_x, double boundary_y,
         Paint fill, Paint stroke,
@@ -73,7 +73,7 @@ public class Tank {
         GraphicsContext g
         ) {
         this.playerName = playerName;
-        this.isPlayerTank = isPlayerTank;
+        this.player = player;
         this.x = x;
         this.y = y;
         this.boundary_x = boundary_x;
@@ -94,11 +94,13 @@ public class Tank {
     }
 
     public void enemyHit(Tank enemy){
-        synchronized(enemyTanks){
-            enemyTanks.remove(enemy);
-        }
-        if(isPlayerTank)
-            Sidenav.addToStats(Stat.SCORE, 1);
+
+        Sidenav.addToStats(player, 1);
+
+        // If tanks should be exploded and disappear after getting hit:
+        // synchronized(enemyTanks){
+        //     enemyTanks.remove(enemy);
+        // }
     }
 
     public List<Tank> getEnemyTanks(){
@@ -204,8 +206,7 @@ public class Tank {
      */
     public void getHit(Shell shell){
         shell.getShooter().enemyHit(this);
-        if(isPlayerTank)
-            Sidenav.addToStats(Stat.LIVES, -1);
+        Sidenav.addToStats(player, -1);
     }
 
     /*

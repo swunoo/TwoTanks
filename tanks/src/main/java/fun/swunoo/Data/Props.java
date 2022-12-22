@@ -1,14 +1,69 @@
 package fun.swunoo.Data;
 
+import fun.swunoo.UI.LayoutBuilder.Sidenav.Player;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.TextAlignment;
 
 /**
  * Miscellaneous data that cannot be expressed in numbers.
  */
 
 public class Props {
-    
+
+    static Label aboutLabel = null;
+    static Label winningLabel = null;
+
+    // Label for About
+    public static Label _aboutLabel(){
+
+        if(aboutLabel == null){
+            StringBuilder aboutBuilder = new StringBuilder();
+
+            aboutBuilder
+                .append("How To Play \n --------------- \n")
+                .append("1. P1 moves with arrow keys and shoots with Enter.\n")
+                .append("2. P2 moves with WASD and shoots with Space.\n")
+                .append("3. First player to reach a score of 3 wins the game.\n")
+                .append("---------------\n")
+                .append("CLICK START\n")
+                .append("---------------\n\n")
+                .append("About\n")
+                .append("- Mini game written while learning JavaFX. Thanks for giving it a try.");
+            
+            aboutLabel = new Label(aboutBuilder.toString()); 
+            aboutLabel.setAlignment(Pos.CENTER);
+            aboutLabel.setFont(_font());
+            aboutLabel.setWrapText(true);
+            aboutLabel.setPadding(new Insets(Sizes.HEADER_PADDING.getSize()));
+            aboutLabel.setLineSpacing(10);
+        }
+
+        return aboutLabel;
+    }
+
+    // Label for Winning
+    public static Label _winningLabel(Player p){
+        if(winningLabel == null){
+            winningLabel = new Label(p + " WINS.\n (pause and start to restart)");
+            winningLabel.setFont(_font());
+            winningLabel.setTextAlignment(TextAlignment.CENTER);
+        }
+        return winningLabel;
+    }
+
+    // Scores
+    public static int _initialScore(){
+        return 0;
+    }
+    public static int _winningScore(){
+        return 3;
+    }
+
+    // Fonts
     public static Font _font(){
         return Font.font("Verdana", FontWeight.EXTRA_BOLD, 14);
     }
@@ -20,11 +75,5 @@ public class Props {
     }
     public static Font _statValueFont(){
         return Font.font("Verdana", FontWeight.EXTRA_BOLD, 30);
-    }
-    public static String _initialLives(){
-        return "3";
-    }
-    public static String _initialScore(){
-        return "0";
     }
 }

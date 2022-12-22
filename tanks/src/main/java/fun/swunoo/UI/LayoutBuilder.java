@@ -31,10 +31,10 @@ import fun.swunoo.Logic.GameArea;
  *                                          - startBtn  Label
  *                                          - aboutBtn  Label
  *                               - statBox:  VBox
- *                                          - scoreStats  VBox
+ *                                          - p1Score  VBox
  *                                                        - text    Label
  *                                                        - value   Label
- *                                          - livesStats  VBox
+ *                                          - p2Score  VBox
  *                                                        - text    Label
  *                                                        - value   Label
  *            - GameArea (center):  Canvas
@@ -46,15 +46,18 @@ import fun.swunoo.Logic.GameArea;
  */
 public class LayoutBuilder {
 
+    // The root element.
+    static BorderPane root;
+
     /**
      * Builds the root node to be used in the Main class.
      */
     public static Pane getRoot(){
 
-        BorderPane root = new BorderPane();
+        root = new BorderPane();
         root.setTop(buildHeader());
         root.setLeft(Sidenav.getSideNavBox());
-        root.setCenter(GameArea.getGameAreaCanvas());
+        root.setCenter(Props._aboutLabel());
 
         return root;
     }
@@ -112,12 +115,12 @@ public class LayoutBuilder {
         private static String hoverBtnStyle = "-fx-background-color: #58F08C; -fx-text-fill: #000;";
 
         // CSS of stats (2 VBox showing score and lives)
-        private static String scoreStatStyle = "-fx-background-color: #fff; -fx-text-fill: #000;"; 
-        private static String liveStatStyle = "-fx-background-color: #473ADC; -fx-text-fill: #fff;"; 
+        private static String p1ScoreStyle = "-fx-background-color: #fff; -fx-text-fill: #000;"; 
+        private static String p2ScoreStyle = "-fx-background-color: #473ADC; -fx-text-fill: #fff;"; 
 
-        // values of score and live stats (not the text, only numbers).
-        private static Label score;
-        private static Label live; 
+        // values of score stats (not the text, only numbers).
+        private static Label p1Score = new Label(Player.P1.getScore()+"");
+        private static Label p2Score = new Label(Player.P2.getScore()+""); 
 
         // Returns VBox (sidenav) if already built, and otherwise builds a new one first.
         public static VBox getSideNavBox(){
@@ -128,14 +131,10 @@ public class LayoutBuilder {
         // Singleton constructor that builds the sidenav.
         private Sidenav(){
 
-            // initializing variables.
-            score = new Label(Props._initialScore());
-            live = new Label(Props._initialLives());
-
             // building statBox
             VBox statBox = new VBox(
-                buildStats("SCORE", score, scoreStatStyle),
-                buildStats("LIVES", live, liveStatStyle));
+                buildStats("P1 SCORE", p1Score, p1ScoreStyle),
+                buildStats("P2 SCORE", p2Score, p2ScoreStyle));
             statBox.setPrefHeight(FULL.getSize());
             statBox.setAlignment(Pos.CENTER);
 
@@ -183,8 +182,32 @@ public class LayoutBuilder {
                 MouseEvent.MOUSE_EXITED, 
                 e -> btn.setStyle(btnStyle + extraStyle));
 
-            // Directing button clicks to game logic.
-            btn.setOnMouseClicked(e -> GameArea.btnClicked(e));
+            // Event handler for btnClick events.
+            btn.setOnMouseClicked(e -> {
+
+                Label btnClicked = (Label) e.getSource();
+        
+                if(btnClicked.getText() == "START"){
+                    root.setCenter(GameArea.getGameAreaCanvas());
+                    btnClicked.setText("PAUSE");
+                                    
+                    // Resets scores
+                    Player.P1.resetScore();
+                    Player.P2.resetScore();
+                    p1Score.setText(Props._initialScore()+"");
+                    p2Score.setText(Props._initialScore()+"");
+
+                    GameArea.setInGame(true);
+
+                } else if (btnClicked.getText() == "PAUSE"){
+                    btnClicked.setText("START");
+                    GameArea.setInGame(false);
+
+                } else if (btnClicked.getText() == "ABOUT"){
+                    root.setCenter(Props._aboutLabel());
+                }
+
+            });
 
             return btn;
         }
@@ -196,7 +219,7 @@ public class LayoutBuilder {
          *      - style:        to style the VBox AND Labels.
          * 
          * The return value is a VBox with two children:
-         *      -   textLabel   (e.g. "Lives", "Scores")
+         *      -   textLabel   (e.g. "P1 Score", "P2 Score")
          *      -   valueLabel  (e.g. "3", "0")
          */
 
@@ -221,24 +244,52 @@ public class LayoutBuilder {
             return stats;
         }
 
-        public static void addToStats(Stat stat, int value){
-            if(stat.equals(Stat.SCORE)){
-                String newText = Integer.toString(
-                    Integer.parseInt(score.getText()) + value
-                );
-                score.setText(newText);
-            } else if (stat.equals(Stat.LIVES)){
-                String newText = Integer.toString(
-                    Integer.parseInt(live.getText()) + value
-                );
-                live.setText(newText);
+        /*
+         * Modifies scores.
+         */
+        public static void addToStats(Player player, int value){
+
+            player.updateScore(value);
+
+            int currentScore = player.getScore();
+
+            if(player.equals(Player.P1)){
+                p1Score.setText(currentScore + "");
+            } else {
+                p2Score.setText(currentScore + "");
+            }
+
+            if(currentScore >= Props._winningScore()){
+                // Stops the game and animation.
+                GameArea.setInGame(false);
+
+                // Shows winning label.
+                root.setCenter(Props._winningLabel(player));
             }
 
         }
 
-        public enum Stat {
-            SCORE,
-            LIVES;
+        public enum Player {
+            P1(Props._initialScore()),
+            P2(Props._initialScore());
+
+            private int score;
+
+            Player(int score){
+                this.score = score;
+            }
+
+            int getScore(){
+                return score;
+            }
+
+            void updateScore(int value){
+                this.score += value;
+            }
+
+            void resetScore(){
+                this.score = Props._initialScore();
+            }
         }
 
     }

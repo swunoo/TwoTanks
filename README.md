@@ -1,13 +1,5 @@
 # 90tanks
 
-<hr>
-
-## BRANCH_OTHER
-
-* This can be a starting point for a space-shooter style game.
-
-<hr>
-
 * Simple JavaFX application written to learn JavaFX.
 * Funtionality is pretty much the same as a game I played 15 years ago.
 
@@ -16,6 +8,7 @@
 * Took another 80 minutes (11:00PM to 12:20PM) to refactor and document everything.
 * Spent another 2 hours on the next day, from 10:45AM to 12:45AM. Completed shell-shooting logic and documentation.
 * Around an hour in the evening to add collision detection.
+* Around two more hours on Dec 22 to complete v1.
 
 ### Questions
 * Arrow keys do not work well when buttons are added (focus is moved to button even though I throw `setFocusTraversal(false)` around).

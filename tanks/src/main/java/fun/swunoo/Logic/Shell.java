@@ -104,7 +104,7 @@ public class Shell {
         if (isActive){ 
             show();
 
-            // The list is cloned to prevent ConcurrentModificationExpections.
+            // The list is cloned to prevent ConcurrentModificationExpections, if enemy tanks need to get removed from enemyTanks after getting hit.
             List<Tank> enemyTanksClone = new ArrayList<>(enemyTanks);
 
             for(Tank tank : enemyTanksClone){
@@ -136,18 +136,4 @@ public class Shell {
         return shooterTank;
     }
     
-
-    // class ShellMovingTask extends TimerTask {
-
-    //     private Shell shell;
-
-    //     ShellMovingTask(Shell shell){
-    //         this.shell = shell;
-    //     }
-
-    //     public void run () {
-            
-            
-    //     }
-    // }
 }
