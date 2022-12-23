@@ -43,6 +43,12 @@ public class GameArea {
         return gameArea;
     }
 
+    /*
+     * Initializes gameArea and canvas objects.
+     * Both objects are then stored as static variables of the class.
+     * So, this method is invoked only once in the program.
+     */
+
     private GameArea(){
 
         // INITIALIZING: Canvas (canvas)
@@ -83,9 +89,9 @@ public class GameArea {
 
         // INITIALIZING: Setting up Tanks
         p1Tank.addEnemyTank(p2Tank);
-
         p2Tank.addEnemyTank(p1Tank);
         
+        // INITIALIZING: Setting up AnimationTimer (animationTimer)
         animationTimer = new AnimationTimer( ) {
             long previousFrameTime; // nanoseconds
             public void handle(long time) {
@@ -97,7 +103,7 @@ public class GameArea {
             }
         };
 
-        // Drawing the canvas.
+        // DRAQWING
         draw();
     }
 
@@ -111,21 +117,13 @@ public class GameArea {
     }
 
     /*
-     * A player winning.
-     */
-    public static void playerWins(){
-        inGame = false;
-    }
-
-    /*
      * Event handler for key strokes.
-     * Moves the tank LEFT, RIGHT, UP, DOWN.
-     * Shoots the tanks, rendering shell movement with animationTimer.
+     * Makes tanks move: LEFT, RIGHT, UP or DOWN.
+     * Makes tanks shoot, rendering shell movement with animationTimer.
      */
     public static void keyPressed(KeyCode code){
 
-        System.out.println("pressed: " + code);
-
+        // no effect if the game is paused or haven't started.
         if(!inGame) return;
 
         // Moving the tank with arrow keys and shooting with spacebar.

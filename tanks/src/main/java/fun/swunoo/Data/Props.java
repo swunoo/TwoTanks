@@ -2,15 +2,11 @@ package fun.swunoo.Data;
 
 import fun.swunoo.UI.LayoutBuilder.Sidenav.Player;
 import javafx.geometry.Insets;
-import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
-import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
@@ -135,4 +131,9 @@ public class Props {
     public static Font _statValueFont(){
         return Font.font("Verdana", FontWeight.EXTRA_BOLD, 30);
     }
+
+    // Text for Buttons
+    public static String _startBtnText(){ return "START"; }
+    public static String _pauseBtnText(){ return "PAUSE"; }
+    public static String _aboutBtnText(){ return "ABOUT"; }
 }

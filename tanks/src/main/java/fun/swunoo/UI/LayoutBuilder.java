@@ -275,6 +275,11 @@ public class LayoutBuilder {
 
         }
 
+        /*
+         * Represents players and their scores
+         * IMPORTANT: their names are not coupled with this enum, yet. 
+         */
+
         public enum Player {
             P1(Props._initialScore()),
             P2(Props._initialScore());
@@ -298,10 +303,13 @@ public class LayoutBuilder {
             }
         }
 
+        /*
+         * Represents two buttons: START (which can be flipped with PAUSE) and ABOUT.
+         */
         enum Btn {
-            START("START"),
-            PAUSE("PAUSE"),
-            ABOUT("ABOUT");
+            START(Props._startBtnText()),
+            PAUSE(Props._pauseBtnText()),
+            ABOUT(Props._aboutBtnText());
 
             private String text;
 
@@ -318,7 +326,7 @@ public class LayoutBuilder {
                     if(btn.getText().equals(text))
                         return btn;
                 }
-                throw new Exception("NO BTN WITH " + text);
+                throw new Exception("NO BTN ENUM WITH TEXT = " + text);
             }
         }
 

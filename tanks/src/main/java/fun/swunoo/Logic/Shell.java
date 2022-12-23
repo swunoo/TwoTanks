@@ -77,7 +77,6 @@ public class Shell {
     /*
      * Continuously move the shell until passing the boundary.
      */
-
     public void update(){
 
         // moves the shell and deactivates if out-of-bound.
@@ -99,19 +98,21 @@ public class Shell {
                 y += speed;
         }
 
-        // draws if shell is still active.
+        // draws and detect collision if shell is still active.
         if (isActive){ 
+            
             show();
 
-            // The list is cloned to prevent ConcurrentModificationExpections, if enemy tanks need to get removed from enemyTanks after getting hit.
+            // The list is cloned to prevent ConcurrentModificationExpections, if tank objects need to get removed from enemyTanks after getting hit.
             List<Tank> enemyTanksClone = new ArrayList<>(enemyTanks);
 
             for(Tank tank : enemyTanksClone){
+                // if the shell is inside bounds of an enemy tank,
                 if(
                     x > tank.accessBounds(LEFT) && x < tank.accessBounds(RIGHT)
                     &&
                     y > tank.accessBounds(UP) && y < tank.accessBounds(DOWN)){
-                        System.out.println("-------TANK HIT-------");
+                        // tank receives damage and shell becomes inactive.
                         tank.getHit(this);
                         this.isActive = false;
                 }

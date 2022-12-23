@@ -12,6 +12,16 @@ import javafx.scene.paint.Paint;
 
 import static fun.swunoo.Logic.Direction.*;
 
+/*
+ * Directions the tank can move.
+ */
+enum Direction {
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN;
+}
+
 /**
  * Class for the tank objects.
  */
@@ -87,22 +97,35 @@ public class Tank {
         this.enemyTanks = new ArrayList<>();
     }
 
+    /*
+     * Setting other tank as enemy.
+     */
     public void addEnemyTank(Tank enemy){
         enemyTanks.add(enemy);
     }
 
-    public void enemyHit(Tank enemy){
-
-        Sidenav.addToStats(player, 1);
-
-        // If tanks should be exploded and disappear after getting hit:
-        // synchronized(enemyTanks){
-        //     enemyTanks.remove(enemy);
-        // }
-    }
-
+    
+    /*
+     * Accessor for enemyTanks.
+     */
     public List<Tank> getEnemyTanks(){
         return enemyTanks;
+    }
+
+    /*
+     * Increments score when enemy is hit.
+     */
+    public void enemyHit(Tank enemy){
+        Sidenav.addToStats(player, 1);
+    }
+
+    /*
+     * Decrements score when tank is hit.
+     * Lets shooter know it hits the tank.
+     */
+    public void getHit(Shell shell){
+        shell.getShooter().enemyHit(this);
+        Sidenav.addToStats(player, -1);
     }
 
     /*
@@ -181,13 +204,16 @@ public class Tank {
 
     /*
      * Shoots shells out of cannon.
+     * direction of the shell is -
+     *      - if tank direction is RIGHT or DOWN: boundary_x or boundary_y.
+     *      - else: 0.
      */
     public void shoot(){
         shells.add(
             new Shell(
             x,
             y, 
-            direction.equals(RIGHT)    // if RIGHT or DOWN, boundary is boundary_x or boundary_y. 0 otherwise.
+            direction.equals(RIGHT)    
                 ? boundary_x
                 : (direction.equals(DOWN) ? boundary_y : 0),
             T.SHELL_SIDE,
@@ -200,21 +226,14 @@ public class Tank {
     }
 
     /*
-     * Receiving damage.
-     */
-    public void getHit(Shell shell){
-        shell.getShooter().enemyHit(this);
-        Sidenav.addToStats(player, -1);
-    }
-
-    /*
-     * This method updates `shells`, to prevent memory leaks.
+     * This method updates `shells` list, to prevent memory leaks.
+     * 
      * IMPORTANT: make sure inactive shells are still being removed if this method is modified.
      * 
      * How inactive shells can be removed:
-     *  -   `shells` is a list, so it shouldn't be modified while being iterated.
-     *  -   So, another list, `shellsToRemove` is constructed to hold unactive shells.
-     *  -   These unactive shells are removed only after the iteration of `shells`.
+     *  -   `shells` is a list and it shouldn't be modified while being iterated.
+     *  -   So, another list, `shellsToRemove` is constructed to hold inactive shells.
+     *  -   These inactive shells are removed only after the iteration of `shells`.
      */
     public void updateShells(){
 
@@ -237,7 +256,7 @@ public class Tank {
     }
 
     /**
-     * Draws a tank based on internal states.
+     * Draws the tank based on internal states.
      */
     public void show(){
 
@@ -354,14 +373,4 @@ public class Tank {
 
         g.fillRect(x_pos, y_pos, x_len, y_len);
     }
-}
-
-/*
- * Directions the tank can move.
- */
-enum Direction {
-    LEFT,
-    RIGHT,
-    UP,
-    DOWN;
 }
