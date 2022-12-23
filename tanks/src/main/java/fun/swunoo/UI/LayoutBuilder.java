@@ -1,9 +1,7 @@
 package fun.swunoo.UI;
 
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -11,8 +9,10 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.Stage;
 
 import static fun.swunoo.Data.Sizes.*;
+import static fun.swunoo.UI.LayoutBuilder.Sidenav.Btn.*;
 
 import fun.swunoo.Data.Props;
 import fun.swunoo.Logic.GameArea;
@@ -40,8 +40,9 @@ import fun.swunoo.Logic.GameArea;
  *            - GameArea (center):  Canvas
  * 
  * Header is built with a static method,
- *      SideNav is built with an inner class
- *      and GameArea is built with GameArea class, which drives game logic.
+ *      SideNav is built with an inner class,
+ *      AboutLabel and Footer are built with methods from Props.
+ *      GameArea is built with GameArea class, which drives game logic.
  * 
  */
 public class LayoutBuilder {
@@ -51,13 +52,15 @@ public class LayoutBuilder {
 
     /**
      * Builds the root node to be used in the Main class.
+     * Uses Stage object to show tooltip in footer.
      */
-    public static Pane getRoot(){
+    public static Pane getRoot(Stage stage){
 
         root = new BorderPane();
         root.setTop(buildHeader());
         root.setLeft(Sidenav.getSideNavBox());
         root.setCenter(Props._aboutLabel());
+        root.setBottom(Props._footer(stage));
 
         return root;
     }
@@ -69,7 +72,7 @@ public class LayoutBuilder {
 
         String style = "-fx-background-color: #000;";
 
-        Label header = new Label("90 TANKS");
+        Label header = new Label(Props._appTitle());
         header.setPrefHeight(HEADER_HEIGHT.getSize());
         header.setMaxHeight(HEADER_HEIGHT.getSize());
         header.setPrefWidth(WINDOW_WIDTH.getSize());
@@ -140,8 +143,8 @@ public class LayoutBuilder {
 
             // building btnBox
             VBox btnBox = new VBox(
-                buildButtons("START", startBtnStyle),
-                buildButtons("ABOUT", abtBtnStyle)
+                buildButtons(START.getText(), startBtnStyle),
+                buildButtons(ABOUT.getText(), abtBtnStyle)
             );
             btnBox.setPadding(new Insets(PADDING.getSize()));
 
@@ -187,9 +190,9 @@ public class LayoutBuilder {
 
                 Label btnClicked = (Label) e.getSource();
         
-                if(btnClicked.getText() == "START"){
+                if(btnClicked.getText().equals(START.getText())){
                     root.setCenter(GameArea.getGameAreaCanvas());
-                    btnClicked.setText("PAUSE");
+                    btnClicked.setText(PAUSE.getText());
                                     
                     // Resets scores
                     Player.P1.resetScore();
@@ -197,13 +200,16 @@ public class LayoutBuilder {
                     p1Score.setText(Props._initialScore()+"");
                     p2Score.setText(Props._initialScore()+"");
 
+                    // Sets focus
+                    GameArea.getGameAreaCanvas().requestFocus();
+
                     GameArea.setInGame(true);
 
-                } else if (btnClicked.getText() == "PAUSE"){
-                    btnClicked.setText("START");
+                } else if (btnClicked.getText().equals(PAUSE.getText())){
+                    btnClicked.setText(START.getText());
                     GameArea.setInGame(false);
 
-                } else if (btnClicked.getText() == "ABOUT"){
+                } else if (btnClicked.getText().equals(ABOUT.getText())){
                     root.setCenter(Props._aboutLabel());
                 }
 
@@ -289,6 +295,30 @@ public class LayoutBuilder {
 
             void resetScore(){
                 this.score = Props._initialScore();
+            }
+        }
+
+        enum Btn {
+            START("START"),
+            PAUSE("PAUSE"),
+            ABOUT("ABOUT");
+
+            private String text;
+
+            Btn(String text){
+                this.text = text;
+            }
+
+            String getText(){
+                return text;
+            }
+
+            Btn btnEnumFromText(String text) throws Exception{
+                for(Btn btn : values()){
+                    if(btn.getText().equals(text))
+                        return btn;
+                }
+                throw new Exception("NO BTN WITH " + text);
             }
         }
 

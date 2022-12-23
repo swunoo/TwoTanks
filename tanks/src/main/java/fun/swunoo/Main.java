@@ -1,5 +1,6 @@
 package fun.swunoo;
 
+import fun.swunoo.Data.Props;
 import fun.swunoo.Data.Sizes;
 import fun.swunoo.Logic.GameArea;
 import fun.swunoo.UI.LayoutBuilder;
@@ -31,9 +32,11 @@ public class Main extends Application{
     public void start(Stage stage){
 
         // Takes root node from LayoutBuilder, a UI class.
-        Pane root = LayoutBuilder.getRoot();
+        Pane root = LayoutBuilder.getRoot(stage);
 
-        Scene scene = new Scene(root, Sizes.WINDOW_WIDTH.getSize(), Sizes.WINDOW_HEIGHT.getSize());
+        Scene scene = new Scene(
+            root, Sizes.WINDOW_WIDTH.getSize(), Sizes.WINDOW_HEIGHT.getSize()
+        );
 
         // Directing key events to game logic.
         scene.setOnKeyPressed(e ->{
@@ -41,7 +44,7 @@ public class Main extends Application{
         });
 
         stage.setScene(scene);
-        stage.setTitle("90 TANKS by SwunOo");
+        stage.setTitle(Props._appTitle());
         stage.setResizable(false);
         stage.show();
 

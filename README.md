@@ -9,6 +9,8 @@
 * Spent another 2 hours on the next day, from 10:45AM to 12:45AM. Completed shell-shooting logic and documentation.
 * Around an hour in the evening to add collision detection.
 * Around two more hours on Dec 22 to complete v1.
+* One hour on Dec 23 to add footer and tooltip.
 
-### Questions
+### Issues
 * Arrow keys do not work well when buttons are added (focus is moved to button even though I throw `setFocusTraversal(false)` around).
+* Two keys pressed (without releasing) seem to trigger only one key code.

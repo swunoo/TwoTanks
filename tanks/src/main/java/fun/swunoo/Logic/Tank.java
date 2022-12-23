@@ -1,11 +1,9 @@
 package fun.swunoo.Logic;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import fun.swunoo.Data.TankMeasurements;
-import fun.swunoo.UI.LayoutBuilder;
 import fun.swunoo.UI.LayoutBuilder.Sidenav;
 import fun.swunoo.UI.LayoutBuilder.Sidenav.Player;
 import javafx.scene.canvas.GraphicsContext;

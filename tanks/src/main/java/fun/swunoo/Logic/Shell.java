@@ -1,7 +1,6 @@
 package fun.swunoo.Logic;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javafx.scene.canvas.GraphicsContext;
