@@ -1,5 +1,7 @@
 # Two Tanks
 
+![Game Screen](./game_screen.png)
+
 ## Gameplay
 
 The tank game we used to play as a child. Gameplay is super simple. Drive your tank and shoot at the other. Hitting the enemy increases your score by 1 and getting hit decreases your score by 1. First player to reach a certatin score (3 by default) wins the game.
@@ -46,5 +48,4 @@ Packages are:
 * Arrow keys do not work well when other focusable nodes (Button, HyperLink, etc.) are added (even when `setFocusTraversal(false);` is used).
 * Two keys pressed (without releasing) seem to trigger only one key code.
 * Player names and scores should be made into a separate class or morphed into tanks.
-  
   
